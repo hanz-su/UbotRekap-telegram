@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 
 # ============ KONFIGURASI ============
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"  # Ganti dengan token bot Anda
+BOT_TOKEN = "8503399027:AAGXsl13LHuQBaRzOVIJAA_QsDPieTZJl1Q"  # Ganti dengan token bot Anda
 DATA_DIR = os.path.expanduser("~/anggaoffc_data")
 
 # ============ SETUP DATA DIRECTORY ============
