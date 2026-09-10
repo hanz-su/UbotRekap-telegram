@@ -104,6 +104,9 @@ def format_nominal(nominal, perak_mode):
 # ============ COMMAND HANDLERS ============
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler /start"""
+    if not update.message:
+        return
+    
     await update.message.reply_text(
         "🎉 Selamat datang di Angga Offc Bot!\n\n"
         "Bot tracker K/B dengan fitur lengkap.\n"
@@ -113,6 +116,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_on(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Aktifkan bot di grup"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -126,6 +132,9 @@ async def cmd_on(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_off(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Matikan bot di grup"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -139,6 +148,9 @@ async def cmd_off(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Tampilkan slot list"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -172,6 +184,9 @@ async def cmd_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_rs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Reset list (kosongkan semua slot)"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -187,6 +202,9 @@ async def cmd_rs(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_rk(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Rekap total K/B"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -213,6 +231,9 @@ async def cmd_rk(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_perak(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Set mode perak (B1 = 1000)"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -226,6 +247,9 @@ async def cmd_perak(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_nonperak(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Set mode non-perak (B1 = 1)"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -239,6 +263,9 @@ async def cmd_nonperak(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_ck(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Tutup bet K"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -252,6 +279,9 @@ async def cmd_ck(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Tutup bet B"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -265,6 +295,9 @@ async def cmd_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_ok(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Buka semua side"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -279,6 +312,9 @@ async def cmd_ok(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_sv(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Set alias nama"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -304,6 +340,9 @@ async def cmd_sv(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_svlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Lihat semua alias"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -323,6 +362,9 @@ async def cmd_svlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_addp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Tandai saldo cukup dengan P"""
+    if not update.message:
+        return
+    
     if update.message.chat.type == 'private':
         await update.message.reply_text("❌ Command ini hanya bisa dipakai di grup!")
         return
@@ -342,6 +384,9 @@ async def cmd_addp(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Tampilkan bantuan"""
+    if not update.message:
+        return
+    
     help_text = """
 🎉 ANGGA OFFC - TUTORIAL BOTLIST
 
@@ -445,20 +490,20 @@ def main():
     app.add_handler(CommandHandler("help", cmd_help))
     app.add_handler(CommandHandler("cmd", cmd_help))
     
-    # Dot commands (regex)
-    app.add_handler(MessageHandler(filters.Regex(r"^\.on$"), cmd_on))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.off$"), cmd_off))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.list$"), cmd_list))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.rs$"), cmd_rs))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.rk$"), cmd_rk))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.perak$"), cmd_perak))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.nonperak$"), cmd_nonperak))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.ck$"), cmd_ck))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.cb$"), cmd_cb))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.ok$"), cmd_ok))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.sv"), cmd_sv))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.svlist$"), cmd_svlist))
-    app.add_handler(MessageHandler(filters.Regex(r"^\.addp"), cmd_addp))
+    # Dot commands (regex) dengan filter TEXT untuk menghindari NoneType error
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.on$"), cmd_on))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.off$"), cmd_off))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.list$"), cmd_list))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.rs$"), cmd_rs))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.rk$"), cmd_rk))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.perak$"), cmd_perak))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.nonperak$"), cmd_nonperak))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.ck$"), cmd_ck))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.cb$"), cmd_cb))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.ok$"), cmd_ok))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.sv"), cmd_sv))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.svlist$"), cmd_svlist))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\.addp"), cmd_addp))
     
     # Message handler untuk bet
     app.add_handler(MessageHandler(
