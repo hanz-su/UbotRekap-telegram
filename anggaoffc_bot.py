@@ -374,7 +374,16 @@ B1.5 - Desimal (titik/koma sama)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle pesan dari user"""
+    # Cek jika update.message ada
+    if not update.message:
+        return
+    
+    # Abaikan pesan pribadi
     if update.message.chat.type == 'private':
+        return
+    
+    # Abaikan jika text kosong
+    if not update.message.text:
         return
     
     group_id = update.message.chat_id
