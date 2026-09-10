@@ -4,19 +4,20 @@
 Telegram Bot Tracker K/B (Kecil/Besar)
 Fitur: Slot List, Rekap, Alias, Geseran, Pinned, dan lainnya
 Kompatibel dengan Termux
-Userbot By Angga
+Userbot By Angga - Fixed Version
 """
 
 import json
 import os
 import re
+import sys
 from datetime import datetime
-from telegram import Update, ForceReply
+from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from telegram.error import TelegramError
 
 # ============ KONFIGURASI ============
-BOT_TOKEN = "8503399027:AAGXsl13LHuQBaRzOVIJAA_QsDPieTZJl1Q"  # Ganti dengan token bot Anda
+BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"  # Ganti dengan token bot Anda
 DATA_DIR = os.path.expanduser("~/anggaoffc_data")
 
 # ============ SETUP DATA DIRECTORY ============
@@ -91,10 +92,6 @@ def format_nominal(nominal, perak_mode):
             return f"{int(nominal // 1000)}rb"
         return str(nominal)
     return str(int(nominal) if nominal % 1 == 0 else nominal)
-
-def get_pinned_message(group_id):
-    """Get pinned message (implementation placeholder)"""
-    return None
 
 # ============ COMMAND HANDLERS ============
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -366,11 +363,6 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 `.svlist` - Lihat semua alias
 `.addp NAMA` - Tandai saldo cukup
 
-**🎯 SLOT MANAGEMENT:**
-`.h NAMA` - Hapus slot pemain
-`.tambah NAMA N` - Tambah nominal
-`.kurang NAMA N` - Kurangi nominal
-
 Ketik `.cmd` untuk command lengkap!
 """
     await update.message.reply_text(help_text, parse_mode="Markdown")
@@ -426,8 +418,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
 async def main():
-    """Main function"""
-    # Buat aplikasi
+    """Main function - Fixed version for Python 3.14+"""
+    # Buat aplikasi dengan config yang sesuai
     app = Application.builder().token(BOT_TOKEN).build()
     
     # Add handlers
@@ -460,7 +452,7 @@ async def main():
     print("🤖 Angga Offc Bot sedang berjalan...")
     print("Tekan Ctrl+C untuk berhenti")
     
-    await app.run_polling()
+    await app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
 
 if __name__ == "__main__":
     import asyncio
@@ -471,7 +463,7 @@ if __name__ == "__main__":
         print("1. Chat @BotFather di Telegram")
         print("2. Ketik /newbot")
         print("3. Ikuti instruksi")
-        exit(1)
+        sys.exit(1)
     
     try:
         asyncio.run(main())
