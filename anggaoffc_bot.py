@@ -3,21 +3,27 @@
 """
 Telegram Bot Tracker K/B (Kecil/Besar)
 Fitur: Slot List, Rekap, Alias, Geseran, Pinned, dan lainnya
-Kompatibel dengan Termux
-Userbot By Angga - Fixed Version
+Kompatibel dengan Termux - Versi Stable untuk Python 3.14+
+Userbot By Angga
 """
 
 import json
 import os
-import re
 import sys
+import logging
 from datetime import datetime
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-from telegram.error import TelegramError
+from telegram.constants import ParseMode
+
+# Setup logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.WARNING
+)
 
 # ============ KONFIGURASI ============
-BOT_TOKEN = "8503399027:AAGXsl13LHuQBaRzOVIJAA_QsDPieTZJl1Q"  # Ganti dengan token bot Anda
+BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"  # Ganti dengan token bot Anda
 DATA_DIR = os.path.expanduser("~/anggaoffc_data")
 
 # ============ SETUP DATA DIRECTORY ============
@@ -33,34 +39,36 @@ def load_group_data(group_id):
     """Load data grup dari file"""
     file_path = get_group_file(group_id)
     if os.path.exists(file_path):
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            pass
     return {
         "active": False,
-        "slots": {},  # {nama: {"K": total, "B": total}}
-        "aliases": {},  # {user_id: nama}
-        "pinned": {},  # {nama: saldo}
-        "geseran": {},  # {key: {"nominal": N, "max": MAX}}
-        "perak": True,  # B1 = 1000 jika True
+        "slots": {},
+        "aliases": {},
+        "pinned": {},
+        "geseran": {},
+        "perak": True,
         "alert": True,
         "owners": [],
         "closed_K": False,
         "closed_B": False,
-        "dot_marks": [],  # Tandai pesan dengan titik
-        "own_bypass": {}  # {user_id: True} - bypass P marker
     }
 
 def save_group_data(group_id, data):
     """Simpan data grup ke file"""
     file_path = get_group_file(group_id)
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error saving data: {e}")
 
 def parse_bet(text):
     """Parse bet format: K5, 5K, B10, 10B, K5rb, B1.5, dll"""
     text = text.strip().upper()
-    
-    # Ganti koma dengan titik untuk desimal
     text = text.replace(',', '.')
     
     if 'K' in text:
@@ -143,7 +151,7 @@ async def cmd_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     perak_mode = data["perak"]
-    message = "📋 **SLOT LIST**\n\n"
+    message = "📋 SLOT LIST\n\n"
     total_k = 0
     total_b = 0
     
@@ -156,11 +164,11 @@ async def cmd_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         k_str = format_nominal(k_total, perak_mode) if k_total > 0 else "-"
         b_str = format_nominal(b_total, perak_mode) if b_total > 0 else "-"
         
-        marker = "P" if (nama in data["pinned"] or any(uid in data["own_bypass"] for uid in data["aliases"].keys() if data["aliases"][uid] == nama)) else ""
+        marker = "P" if nama in data["pinned"] else ""
         message += f"👤 {nama} {marker}\n   K: {k_str} | B: {b_str}\n"
     
     message += f"\n📊 Total K: {format_nominal(total_k, perak_mode)} | Total B: {format_nominal(total_b, perak_mode)}"
-    await update.message.reply_text(message, parse_mode="Markdown")
+    await update.message.reply_text(message)
 
 async def cmd_rs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Reset list (kosongkan semua slot)"""
@@ -173,7 +181,6 @@ async def cmd_rs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data["slots"] = {}
     data["closed_K"] = False
     data["closed_B"] = False
-    data["dot_marks"] = []
     save_group_data(group_id, data)
     
     await update.message.reply_text("🔄 Slot direset! Siap untuk ronde baru.")
@@ -196,13 +203,13 @@ async def cmd_rk(update: Update, context: ContextTypes.DEFAULT_TYPE):
     b_str = format_nominal(total_b, perak_mode)
     sel_str = format_nominal(abs(selisih), perak_mode)
     
-    message = f"📊 **REKAP RONDE**\n\n"
+    message = f"📊 REKAP RONDE\n\n"
     message += f"Total K: {k_str}\n"
     message += f"Total B: {b_str}\n"
     message += f"Selisih: {sel_str} "
     message += f"({'K Unggul 🏆' if selisih > 0 else 'B Unggul 🏆' if selisih < 0 else 'Seri 🤝'})\n"
     
-    await update.message.reply_text(message, parse_mode="Markdown")
+    await update.message.reply_text(message)
 
 async def cmd_perak(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Set mode perak (B1 = 1000)"""
@@ -308,11 +315,11 @@ async def cmd_svlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("📋 Belum ada alias")
         return
     
-    message = "📋 **DAFTAR ALIAS**\n\n"
+    message = "📋 DAFTAR ALIAS\n\n"
     for user_id, nama in data["aliases"].items():
         message += f"👤 {nama} (ID: {user_id})\n"
     
-    await update.message.reply_text(message, parse_mode="Markdown")
+    await update.message.reply_text(message)
 
 async def cmd_addp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Tandai saldo cukup dengan P"""
@@ -336,36 +343,34 @@ async def cmd_addp(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Tampilkan bantuan"""
     help_text = """
-🎉 **ANGGA OFFC - TUTORIAL BOTLIST**
+🎉 ANGGA OFFC - TUTORIAL BOTLIST
 
-**🎯 COMMAND UTAMA:**
-`.on` - Nyalakan bot
-`.off` - Matikan bot
-`.list` - Lihat slot
-`.rk` - Rekap total K/B
-`.rs` - Reset list
+🎯 COMMAND UTAMA:
+.on - Nyalakan bot
+.off - Matikan bot
+.list - Lihat slot
+.rk - Rekap total K/B
+.rs - Reset list
 
-**💰 PASANG BET:**
-`K5` atau `5K` - Pasang Kecil 5
-`B10` atau `10B` - Pasang Besar 10
-`K5rb` - Paksa ribuan (5×1000)
-`B1.5` - Desimal (titik/koma sama)
+💰 PASANG BET:
+K5 atau 5K - Pasang Kecil 5
+B10 atau 10B - Pasang Besar 10
+K5rb - Paksa ribuan (5×1000)
+B1.5 - Desimal (titik/koma sama)
 
-**⚙️ PENGATURAN:**
-`.perak` - B1 = 1000
-`.nonperak` - B1 = 1
-`.ck` - Tutup bet K
-`.cb` - Tutup bet B
-`.ok` - Buka semua side
+⚙️ PENGATURAN:
+.perak - B1 = 1000
+.nonperak - B1 = 1
+.ck - Tutup bet K
+.cb - Tutup bet B
+.ok - Buka semua side
 
-**👤 ALIAS & PINNED:**
-`.sv NAMA` - Set alias (reply user)
-`.svlist` - Lihat semua alias
-`.addp NAMA` - Tandai saldo cukup
-
-Ketik `.cmd` untuk command lengkap!
+👤 ALIAS & PINNED:
+.sv NAMA - Set alias (reply user)
+.svlist - Lihat semua alias
+.addp NAMA - Tandai saldo cukup
 """
-    await update.message.reply_text(help_text, parse_mode="Markdown")
+    await update.message.reply_text(help_text)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle pesan dari user"""
@@ -379,30 +384,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     data = load_group_data(group_id)
     
-    # Cek apakah bot aktif
     if not data["active"]:
         return
     
-    # Cek apakah ada custom alias
     if str(user_id) in data["aliases"]:
         username = data["aliases"][str(user_id)]
     
-    # Parse bet
     bet_type, nominal, original = parse_bet(text)
     
     if bet_type and nominal:
-        # Cek apakah side ditutup
         if (bet_type == 'K' and data["closed_K"]) or (bet_type == 'B' and data["closed_B"]):
             await update.message.reply_text(f"❌ Bet {bet_type} sudah ditutup!")
             return
         
-        # Tambah ke slot
         if username not in data["slots"]:
             data["slots"][username] = {"K": 0, "B": 0}
         
         data["slots"][username][bet_type] += nominal
         
-        # Konversi nominal untuk display
         if data["perak"] and nominal % 1000 == 0:
             display_nominal = f"{int(nominal // 1000)}rb"
         else:
@@ -410,16 +409,26 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         save_group_data(group_id, data)
         
-        # Konfirmasi
         if data["alert"]:
-            await update.message.reply_text(
-                f"✅ {username} pasang {bet_type}{display_nominal}",
-                reply_to_message_id=update.message.message_id
-            )
+            try:
+                await update.message.reply_text(
+                    f"✅ {username} pasang {bet_type}{display_nominal}",
+                    reply_to_message_id=update.message.message_id
+                )
+            except:
+                await update.message.reply_text(f"✅ {username} pasang {bet_type}{display_nominal}")
 
-async def main():
-    """Main function - Fixed version for Python 3.14+"""
-    # Buat aplikasi dengan config yang sesuai
+def main():
+    """Main function"""
+    if BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
+        print("❌ ERROR: Ganti BOT_TOKEN dengan token bot Anda!")
+        print("Cara mendapat token:")
+        print("1. Chat @BotFather di Telegram")
+        print("2. Ketik /newbot")
+        print("3. Ikuti instruksi")
+        sys.exit(1)
+    
+    # Buat aplikasi
     app = Application.builder().token(BOT_TOKEN).build()
     
     # Add handlers
@@ -444,28 +453,20 @@ async def main():
     
     # Message handler untuk bet
     app.add_handler(MessageHandler(
-        filters.TEXT & ~filters.COMMAND & filters.UpdateType.MESSAGE,
+        filters.TEXT & ~filters.COMMAND,
         handle_message
     ))
     
-    # Jalankan bot
     print("🤖 Angga Offc Bot sedang berjalan...")
     print("Tekan Ctrl+C untuk berhenti")
     
-    await app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
+    # Jalankan bot
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
-    import asyncio
-    
-    if BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
-        print("❌ ERROR: Ganti BOT_TOKEN dengan token bot Anda!")
-        print("Cara mendapat token:")
-        print("1. Chat @BotFather di Telegram")
-        print("2. Ketik /newbot")
-        print("3. Ikuti instruksi")
-        sys.exit(1)
-    
     try:
-        asyncio.run(main())
+        main()
     except KeyboardInterrupt:
         print("\n✅ Bot dihentikan")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
